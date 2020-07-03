@@ -12,6 +12,9 @@
             --other-bg: #414141;
             --bg-light: #353535;
 
+            --light-bg: #faf8f5;
+            --light-other: #e6e6e6;
+
             --black: #000;
             --white: #eeeeee;
             --blue: #5394ec;
@@ -157,7 +160,7 @@
         }
 
         .cm-s-darcula.CodeMirror,
-        .cm-s-dracula.CodeMirror {
+        .cm-s-duotone-light.CodeMirror {
             width: 100%;
             height: 100%;
             font-size: 17px;
@@ -167,7 +170,9 @@
             width: 12px;
         }
 
-        ::-webkit-scrollbar-corner, ::-webkit-scrollbar-track, .fixed-thumb {
+        ::-webkit-scrollbar-corner,
+        ::-webkit-scrollbar-track,
+        .fixed-thumb {
             background: var(--bg-light);
         }
 
@@ -183,9 +188,20 @@
             width: 12px;
             z-index: 1000000;
         }
+
+        .light ::-webkit-scrollbar-corner,
+        .light ::-webkit-scrollbar-track,
+        .light .fixed-thumb {
+            background: var(--light-bg) !important;
+        }
+
+        .light ::-webkit-scrollbar-thumb {
+            background: var(--light-other) !important;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.54.0/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.54.0/theme/darcula.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.55.0/theme/duotone-light.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.css">
 </head>
 
@@ -387,8 +403,30 @@
                     } else if (c == "full") {
                         RUNTIME.win.setFullScreen(!RUNTIME.win.isFullScreen());
                         good();
-                    } else if (c == "alwaystop"){
+                    } else if (c == "alwaystop") {
                         RUNTIME.win.setAlwaysOnTop(!RUNTIME.win.isAlwaysOnTop());
+                        good();
+                    } else if (c == "dark") {
+                        RUN.editor.setOption("theme", "darcula");
+                        document.body.classList.remove("light");
+                        RUNTIME.console.setOption("theme", {
+                            background: "#353535",
+                            foreground: "#eeeeee",
+                            yellow: "#d3ae0a",
+                            cursor: "#ffffff"
+                        });
+                        terminal.refresh(0, terminal.rows);
+                        good();
+                    } else if (c == "light") {
+                        RUN.editor.setOption("theme", "duotone-light");
+                        document.body.classList.add("light");
+                        RUNTIME.console.setOption("theme", {
+                            background: "#faf8f5",
+                            foreground: "#000000",
+                            yellow: "#a88a06",
+                            cursor: "#93ABDC"
+                        });
+                        terminal.refresh(0, terminal.rows);
                         good();
                     } else if (c == "clear") {
                         RUNTIME.console.write("\u001Bc");
@@ -476,9 +514,9 @@
 
             RUNTIME.console.prompt = function () {
                 if (RUNTIME.bash_folder.startsWith(RUNTIME.folder)) {
-                    RUNTIME.console.write("\r\n" + chalk.yellow.bold(os.userInfo().username + "@" + os.hostname()) + ":" + chalk.blue(RUNTIME.bash_folder.split(RUNTIME.folder)[1]) + "$ ");
+                    RUNTIME.console.write("\r\n" + chalk.yellow(os.userInfo().username + "@" + os.hostname()) + ":" + chalk.blue(RUNTIME.bash_folder.split(RUNTIME.folder)[1]) + "$ ");
                 } else {
-                    RUNTIME.console.write("\r\n" + chalk.yellow.bold(os.userInfo().username + "@" + os.hostname()) + ":" + chalk.magenta(RUNTIME.bash_folder) + "$ ");
+                    RUNTIME.console.write("\r\n" + chalk.yellow(os.userInfo().username + "@" + os.hostname()) + ":" + chalk.magenta(RUNTIME.bash_folder) + "$ ");
                 };
             };
 

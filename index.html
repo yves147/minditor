@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yves' Editor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --other-bg: #414141;
+            --bg-light: #353535;
+
+            --black: #000;
+            --white: #eeeeee;
+            --blue: #5394ec;
+            --cyan: #299999;
+            --gray: #555555;
+            --green: #379c1a;
+            --magenta: #ae8abe;
+            --red: #e74644;
+            --yellow: #dcc457;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .terminal * {
+            overflow: auto !important;
+        }
+
+        .ov {
+            overflow: hidden;
+        }
+
+        html,
+        body,
+        .terminal {
+            width: 100vw;
+            height: 100vh;
+            font-family: "Space Mono", Ubuntu, sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            color: var(--white);
+        }
+
+        .top {
+            flex: 1;
+            min-height: 30px;
+            max-height: 30px;
+            background: var(--other-bg);
+            border-bottom: solid black 1px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top .top-title {
+            flex: 1;
+            text-align: left;
+            padding-left: 10px;
+            font-weight: 900;
+            padding-top: 6px;
+            font-size: 15px;
+            font-family: sans-serif;
+        }
+
+        .top .top-menu {
+            flex: 1;
+        }
+
+        .editor {
+            flex: 1;
+            display: flex;
+        }
+
+        .editor-folder,
+        .editor-edit,
+        .editor-editor {
+            flex: 1;
+        }
+
+        .editor-folder {
+            max-width: 300px;
+            background: var(--other-bg);
+            border-right: solid black 1px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-pname {
+            flex: 1;
+            min-height: 30px;
+            max-height: 30px;
+            background: var(--bg-light);
+        }
+
+        .editor-folder .editor-list {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-folder .editor-project {
+            flex: 1;
+            min-height: 200px;
+            max-height: 200px;
+            background: var(--bg-light);
+            border-bottom: solid black 1px;
+        }
+
+        .editor-edit {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-files {
+            flex: 1;
+            max-height: 30px;
+            background: var(--other-bg);
+            display: flex;
+        }
+
+        .editor-files .editor-file {
+            flex: 1;
+            background: var(--bg-light);
+            max-width: 180px;
+        }
+
+        .editor-console-part {
+            flex: 1;
+            min-height: 20px;
+            max-height: 20px;
+            text-align: left;
+            padding-left: 10px;
+            font-weight: 900;
+            padding-top: 5px;
+            font-size: 15px;
+            font-family: Ubuntu;
+            background: var(--other-bg);
+        }
+
+        .editor-console {
+            min-height: 200px;
+            max-height: 200px;
+        }
+
+        .cm-s-darcula.CodeMirror,
+        .cm-s-dracula.CodeMirror {
+            width: 100%;
+            height: 100%;
+            font-size: 17px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        ::-webkit-scrollbar-corner, ::-webkit-scrollbar-track, .fixed-thumb {
+            background: var(--bg-light);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--other-bg);
+        }
+
+        .fixed-thumb {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            height: 12px;
+            width: 12px;
+            z-index: 1000000;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.54.0/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.54.0/theme/darcula.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.css">
+</head>
+
+<body>
+    <div class="top">
+        <div class="top-title"><i>Blank file</i></div>
+    </div>
+    <div class="editor ov">
+        <div class="editor-edit ov">
+            <div class="editor-editor ov"></div>
+        </div>
+    </div>
+    <div class=""></div>
+    <div class="fixed-thumb"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/addons/fit/fit.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.54.0/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.54.0/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.55.0/mode/clike/clike.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.54.0/addon/display/fullscreen.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.54.0/addon/edit/closebrackets.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.54.0/addon/search/match-highlighter.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.54.0/addon/scroll/annotatescrollbar.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.54.0/keymap/sublime.min.js"></script>
+    <script>
+        (function (RUNTIME) {
+            let { exec } = require("child_process");
+            let fs = require("fs");
+            let chalk = require("chalk");
+            let os = require("os");
+
+            let alphs = [
+                "!", "\"", "§", "$", "%", "&", "/", "(", ")", "=", "?", "°", "^",
+                "[", "]", "{", "}", "ß", "\\", "#", "'", "+", "*", "~", "_", "-",
+                ".", ":", ",", ";", "<", ">", "|", "@", " ",
+                "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "n", "m", "o", "p",
+                "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
+                "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "N", "M", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
+                "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
+            ];
+
+            window.RUN = RUNTIME;
+
+            RUNTIME.remote = require("electron").remote;
+            RUNTIME.dialog = RUNTIME.remote.dialog;
+
+            RUNTIME.folder = os.homedir();
+            RUNTIME.bash_folder = RUNTIME.folder;
+            RUNTIME.file = "blank.blank";
+            RUNTIME.files = [];
+
+            setTimeout(() => {
+                document.querySelector(".terminal").style.display = "none";
+            }, 300);
+
+            console.log(__dirname);
+
+            RUNTIME.current = 0;
+            RUNTIME.command = "";
+            RUNTIME.lasts = [];
+
+            RUNTIME.mode = "JS";
+            RUNTIME.win = RUNTIME.remote.getCurrentWindow();
+
+            function _ch(ev, a) {
+                if (ev.key == "Enter" && ev.ctrlKey === true && RUNTIME.mode == "JS") {
+                    RUNTIME.current = 1;
+                    document.querySelector(".terminal").style.display = "inline";
+                    document.querySelector(".editor").style.display = "none";
+                    document.querySelector(".terminal").focus();
+                    if (fs.existsSync(RUNTIME.folder + "package.json")) {
+                        let pcgj = JSON.parse(fs.readFileSync(RUNTIME.folder + "package.json"));
+                        if (pcgj.main || (pcgj.scripts && pcgj.scripts.start)) {
+                            RUNTIME.console.write("\u001Bc");
+                            RUNTIME.console.write("\r\n" + RUNTIME.folder);
+                            return exec("gnome-terminal --working-directory=" + RUNTIME.folder + " -e 'sh -c \"" + (pcgj.main ? ("node " + pcgj.main) : pcgj.scripts.start) + ";echo \"\"Process End\"\"; exec bash\"'", (err, stdout, stderr) => {
+                                if (err) {
+                                    RUNTIME.console.write("/> " + err);
+                                    console.error(err)
+                                } else {
+                                    console.log(stdout);
+                                    if (stdout) RUNTIME.console.write("\r\n" + stdout.replace(/\n/ig, "\r\n"));
+                                    if (stderr) RUNTIME.console.write("\r\n" + stderr);
+                                };
+                                if (a) a();
+                                RUNTIME.console.prompt();
+                                console.log("processed");
+                            });
+                        } else {
+                            RUNTIME.console.write("\r\n\"main\" field not specified in package.json");
+                            RUNTIME.console.prompt();
+                        };
+                    } else {
+                        RUNTIME.console.write("\r\n\"package.json\" not found");
+                        RUNTIME.console.prompt();
+                    };
+                    if (a) a();
+                    ev.preventDefault();
+                    return false;
+                };
+                if (ev.key == "o" && ev.ctrlKey === true) {
+                    _uo(() => {
+                        a();
+                        RUNTIME.console.prompt();
+                    });
+                };
+                if (ev.key == "s" && ev.ctrlKey === true) {
+                    if (!fs.existsSync(RUNTIME.folder + RUNTIME.file)) {
+                        document.querySelector(".top-title").innerText = RUNTIME.file;
+                    };
+                    fs.writeFileSync(RUNTIME.folder + RUNTIME.file, RUNTIME.editor.getValue());
+                };
+                if (ev.key == "y" && ev.ctrlKey === true) {
+                    if (RUNTIME.current === 0) {
+                        RUNTIME.current = 1;
+                        document.querySelector(".terminal").style.display = "inline";
+                        document.querySelector(".editor").style.display = "none";
+                        document.querySelector(".terminal").focus();
+                    } else {
+                        RUNTIME.current = 0;
+                        document.querySelector(".terminal").style.display = "none";
+                        document.querySelector(".editor").style.display = "flex";
+                        RUNTIME.editor.focus();
+                    };
+                };
+                if (a) a();
+            };
+
+            function _uo(j) {
+                RUNTIME.dialog.showOpenDialog(RUNTIME.win, {
+                    title: "Yves' Editor File Chooser",
+                    buttonLabel: "Open",
+                    properties: ["openDirectory"]
+                }).then(function (a) {
+                    if (!a.canceled) {
+                        console.log(a.filePaths[0]);
+                        RUNTIME.folder = a.filePaths[0] + "/";
+                        RUNTIME.bash_folder = RUNTIME.folder;
+                        localStorage.setItem("folder", a.filePaths[0]);
+                        RUNTIME.console.write("\r\nChanged working directory to: " + a.filePaths[0]);
+                        document.title = "Yves' Editor - " + a.filePaths[0];
+                    };
+                    j();
+                });
+            }
+
+            function _sh(c) {
+                c = c.split("").filter(h => alphs.includes(h)).join("");
+                return new Promise(function (good, bad) {
+                    console.log(RUNTIME);
+                    if (c == "open") {
+                        _uo(good);
+                    } else if (c == "term") {
+                        exec("gnome-terminal --working-directory=" + RUNTIME.folder, (err, stdout, stderr) => {
+                            good();
+                        });
+                    } else if (c == "!reload") {
+                        location.reload();
+                    } else if (c.startsWith("edit ")) {
+                        RUNTIME.current = 0;
+                        document.querySelector(".terminal").style.display = "none";
+                        document.querySelector(".editor").style.display = "flex";
+                        RUNTIME.file = c.split(" ")[1];
+                        if (fs.existsSync(RUNTIME.bash_folder + c.split(" ")[1])) {
+                            RUNTIME.console.write("\r\nOpening file: " + RUNTIME.bash_folder + c.split(" ")[1]);
+                            let content = fs.readFileSync(RUNTIME.bash_folder + c.split(" ")[1]);
+                            RUNTIME.editor.setValue(content.toString());
+                            RUNTIME.editor.focus();
+                            document.querySelector(".top-title").innerText = RUNTIME.file;
+                        } else {
+                            RUNTIME.console.write("\r\nFile not found: " + RUNTIME.bash_folder + c.split(" ")[1]);
+                            RUNTIME.console.write("\r\nLoading blank file..");
+                            RUNTIME.editor.setValue("");
+                            RUNTIME.editor.focus();
+                            document.querySelector(".top-title").innerHTML = "<i>Buffer only: </i>";
+                            document.querySelector(".top-title").firstChild.innerText += " " + RUNTIME.file;
+                        };
+                        good();
+                    } else if (c.startsWith("cd ")) {
+                        if (c == "cd ..") {
+                            RUNTIME.bash_folder = (RUNTIME.bash_folder.split("/").filter((a, b) => {
+                                return b < RUNTIME.bash_folder.split("/").length - 2
+                            }).join("/") + "/");
+                        } else if (fs.existsSync(RUNTIME.bash_folder + c.split(" ")[1]) && fs.lstatSync(RUNTIME.bash_folder + c.split(" ")[1]).isDirectory()) {
+                            RUNTIME.bash_folder = RUNTIME.bash_folder + c.split(" ")[1] + (c.split(" ")[1].endsWith("/") ? "" : "/");
+                        } else {
+                            RUNTIME.console.write("\r\nDirectory not found: " + RUNTIME.bash_folder + c.split(" ")[1]);
+                        };
+                        good();
+                    } else if (c == "reset") {
+                        let content = fs.readFileSync(RUNTIME.folder + RUNTIME.file);
+                        RUNTIME.editor.setValue(content.toString());
+                        good();
+                    } else if (c == "menu") {
+                        RUNTIME.win.setMenuBarVisibility(!RUNTIME.win.isMenuBarVisible());
+                        good();
+                    } else if (c == "full") {
+                        RUNTIME.win.setFullScreen(!RUNTIME.win.isFullScreen());
+                        good();
+                    } else if (c == "alwaystop"){
+                        RUNTIME.win.setAlwaysOnTop(!RUNTIME.win.isAlwaysOnTop());
+                        good();
+                    } else if (c == "clear") {
+                        RUNTIME.console.write("\u001Bc");
+                        good();
+                    } else {
+                        (function (g) {
+                            exec("cd \"" + RUNTIME.bash_folder + "\" && " + c, (err, stdout, stderr) => {
+                                if (err) {
+                                    RUNTIME.console.write("/> " + err);
+                                    console.error(err)
+                                } else {
+                                    console.log(stdout);
+                                    if (stdout) RUNTIME.console.write("\r\n" + stdout.replace(/\n/ig, "\r\n"));
+                                    if (stderr) RUNTIME.console.write("\r\n" + stderr);
+                                };
+                                g();
+                                console.log("processed");
+                            });
+                        })(good)
+                    };
+                });
+            };
+
+            window.addEventListener("keydown", _ch);
+
+            function _rs() {
+                console.log("rs");
+                RUNTIME.console.resize(Math.floor(innerWidth * 0.1111), Math.floor((innerHeight - 30) * 0.05882));
+            };
+
+            window.addEventListener("resize", _rs);
+
+            RUNTIME.editor = CodeMirror(document.querySelector(".editor-editor"), {
+                value: "",
+                lineNumbers: true,
+                styleActiveLine: true,
+                matchBrackets: true,
+                theme: "darcula",
+                mode: "javascript"
+            });
+
+            RUNTIME.console = new Terminal();
+            window.terminal = RUNTIME.console;
+            RUNTIME.console.open(document.querySelector(".editor-console"));
+
+            _rs();
+
+            RUNTIME.console.setOption("theme", {
+                background: "#353535",
+                foreground: "#eeeeee",
+                blue: "#5394ec",
+                red: "#e74644",
+                green: "#379c1a",
+                yellow: "#dcc457",
+                cyan: "#299999",
+                magenta: "#ae8abe"
+            });
+
+            RUNTIME.console.on("key", async function (key, ev) {
+                let printable = (!ev.altKey && !ev.altGraphKey && !ev.ctrlKey && !ev.metaKey);
+
+                _ch(ev, () => {
+
+                    if (ev.keyCode === 13) {
+                        _sh(RUNTIME.command).then(function () {
+                            RUNTIME.command = "";
+                            RUNTIME.console.prompt();
+                        }).catch(function () {
+                            RUNTIME.command = "";
+                            RUNTIME.console.prompt();
+                        });
+                    } else if (ev.keyCode === 8 && RUNTIME.command && RUNTIME.console._core.buffer.x > 2) {
+                        RUNTIME.command = RUNTIME.command.slice(0, RUNTIME.command.length - 1);
+                        RUNTIME.console.write("\b \b");
+                    } else if (printable) {
+                        if (alphs.includes(key)) {
+                            RUNTIME.command += key;
+                            RUNTIME.console.write(key);
+                        }
+                    }
+
+                });
+
+            });
+
+            RUNTIME.console.prompt = function () {
+                if (RUNTIME.bash_folder.startsWith(RUNTIME.folder)) {
+                    RUNTIME.console.write("\r\n" + chalk.yellow.bold(os.userInfo().username + "@" + os.hostname()) + ":" + chalk.blue(RUNTIME.bash_folder.split(RUNTIME.folder)[1]) + "$ ");
+                } else {
+                    RUNTIME.console.write("\r\n" + chalk.yellow.bold(os.userInfo().username + "@" + os.hostname()) + ":" + chalk.magenta(RUNTIME.bash_folder) + "$ ");
+                };
+            };
+
+            if (localStorage.getItem("folder")) {
+                RUNTIME.folder = localStorage.getItem("folder") + "/";
+                RUNTIME.bash_folder = RUNTIME.folder;
+                RUNTIME.console.write("\r\n" + chalk.italic("AUTO Changed working directory to: " + localStorage.getItem("folder")));
+                document.title = "Yves' Editor - " + localStorage.getItem("folder");
+            };
+
+            RUNTIME.console.prompt();
+        })({});
+    </script>
+</body>
+
+</html>

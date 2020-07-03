@@ -10,6 +10,9 @@
     <style>
         :root {
             --other-bg: #414141;
+            --other-rg: #494949;
+            --other-hg: #444242;
+            --other-important: #1b1b1b;
             --bg-light: #353535;
 
             --light-bg: #faf8f5;
@@ -43,6 +46,10 @@
 
         .ov {
             overflow: hidden;
+        }
+
+        html {
+            background: black;
         }
 
         html,
@@ -198,42 +205,156 @@
         .light ::-webkit-scrollbar-thumb {
             background: var(--light-other) !important;
         }
+
+        .search,
+        .notice,
+        .numb {
+            display: none;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            width: 100vw;
+            top: 0;
+            left: 0;
+            background: var(--other-bg);
+            z-index: 10000;
+        }
+
+        .search input#search {
+            flex: 1;
+            padding: 10px;
+            max-height: 30px;
+            background: var(--bg-light);
+            width: 100vw;
+            color: white;
+            border: 0;
+            outline: none;
+            font-size: 20px;
+            font-family: sans-serif;
+            font-weight: 900;
+        }
+
+        .search .results {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .search .results .result {
+            height: 40px;
+            background: var(--other-hg);
+            display: flex;
+            flex-direction: row;
+        }
+
+        .search .results .result .result-name,
+        .search .results .result .result-notice {
+            flex: 1;
+            color: #d1d1d1;
+            padding: 10px;
+            font-size: 17.5px;
+            font-family: Ubuntu, sans-serif;
+            font-weight: 400;
+        }
+
+        .search .results .result .result-key {
+            flex: 0.5;
+            background: var(--bg-light);
+            border-radius: 4px;
+            text-align: center;
+            padding-top: 2px;
+            font-size: 13px;
+            margin: 8px;
+            max-width: 72px;
+        }
+
+        .search .results .result .result-notice {
+            text-overflow: ellipsis;
+            overflow: hidden;
+            padding: 6px;
+            color: #9c9c9c;
+            font-family: "Space Mono", Ubuntu, sans-serif;
+        }
+
+        .search .results .result:nth-child(2n) {
+            background: var(--other-rg);
+        }
+
+        #notice,
+        #numb {
+            padding: 20px;
+            outline: none;
+            border: none;
+            background: transparent;
+            color: white;
+        }
+
+        #notice {
+            font-size: 25px;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #numb {
+            font-size: 40px;
+        }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.54.0/codemirror.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.54.0/theme/darcula.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.55.0/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.55.0/theme/darcula.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.55.0/theme/duotone-light.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.css">
 </head>
 
 <body>
+    <div class="numb">
+        <input type="text" id="numb" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    </div>
+    <div class="search">
+        <input type="text" id="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <div class="results"></div>
+    </div>
+    <div class="notice">
+        <textarea type="text" id="notice" autocomplete="off" autocorrect="off" autocapitalize="off"
+            spellcheck="false"></textarea>
+    </div>
     <div class="top">
-        <div class="top-title"><i>Blank file</i></div>
+        <div class="top-title"><i>Blank buffer</i></div>
     </div>
     <div class="editor ov">
         <div class="editor-edit ov">
             <div class="editor-editor ov"></div>
         </div>
     </div>
-    <div class=""></div>
     <div class="fixed-thumb"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/addons/fit/fit.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.54.0/codemirror.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.54.0/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.55.0/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.55.0/mode/javascript/javascript.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.55.0/mode/clike/clike.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.54.0/addon/display/fullscreen.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.54.0/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.55.0/mode/css/css.min.js"></script>
     <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.54.0/addon/search/match-highlighter.min.js"></script>
+        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.55.0/mode/coffeescript/coffeescript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.55.0/mode/cmake/cmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.55.0/mode/cobol/cobol.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.55.0/mode/d/d.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.55.0/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.55.0/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.55.0/addon/display/fullscreen.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.55.0/addon/edit/closebrackets.min.js"></script>
     <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.54.0/addon/scroll/annotatescrollbar.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.54.0/keymap/sublime.min.js"></script>
+        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.55.0/addon/search/match-highlighter.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.55.0/addon/scroll/annotatescrollbar.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.55.0/keymap/sublime.min.js"></script>
     <script>
         (function (RUNTIME) {
             let { exec } = require("child_process");
             let fs = require("fs");
             let chalk = require("chalk");
             let os = require("os");
+
+            if (!localStorage.getItem("notices")) {
+                localStorage.setItem("notices", "{}");
+            };
 
             let alphs = [
                 "!", "\"", "§", "$", "%", "&", "/", "(", ")", "=", "?", "°", "^",
@@ -255,6 +376,19 @@
             RUNTIME.file = "blank.blank";
             RUNTIME.files = [];
 
+            RUNTIME.notices = {};
+
+            RUNTIME.ignore_list = [
+                "node_modules",
+                "package-lock.json",
+                ".*\\.d",
+                ".*\\.o",
+                ".*\\.ko",
+                ".*\\.obj",
+                ".*\\.elf",
+                ".*\\.map"
+            ];
+
             setTimeout(() => {
                 document.querySelector(".terminal").style.display = "none";
             }, 300);
@@ -265,11 +399,205 @@
             RUNTIME.command = "";
             RUNTIME.lasts = [];
 
+            RUNTIME.opacity = 1;
+
+            RUNTIME.searching = false;
+            RUNTIME.noticing = false;
+            RUNTIME.numbering = false;
+
             RUNTIME.mode = "JS";
             RUNTIME.win = RUNTIME.remote.getCurrentWindow();
 
+            function _type(a) {
+                let filters = {
+                    "js": "javascript",
+                    "json": "javascript",
+                    "ejs": "htmlmixed",
+                    "html": "htmlmixed",
+                    "xml": "htmlmixed",
+                    "css": "css",
+                    "c": "clike",
+                    "cpp": "clike",
+                    "cs": "clike"
+                };
+
+                let file_ending = a.split(".").filter((a, b) => {
+                    return b != (a.split(".").length - 1)
+                }).pop();
+
+                return filters[file_ending] || "NULL";
+            }
+
+            function _recursive(search, path, depth) {
+                depth = depth || 0;
+                if (depth > 6) return [];
+                let _content = fs.readdirSync(path);
+                let _res = [];
+                for (let i = 0; i < _content.length; i++) {
+                    if (RUNTIME.ignore_list.includes(_content[i]) || _content[i].startsWith(".")) continue;
+                    if (fs.lstatSync(path + "/" + _content[i]).isDirectory()) {
+                        let _g = _recursive(search, path + "/" + _content[i], depth + 1);
+                        _res = _res.concat(_g);
+                        continue;
+                    };
+                    if ((path + "/" + _content[i]).includes(search)) _res.push({
+                        name: ((path.split(RUNTIME.folder)[1]) ? path.split(RUNTIME.folder)[1] + "/" : "") + _content[i],
+                        type: _type(_content[i]),
+                        path: path + "/" + _content[i]
+                    });
+                };
+                return _res;
+            };
+
+            function _search() {
+                RUNTIME.searching = true;
+                document.querySelector(".search").style.display = "flex";
+                document.querySelector("#search").value = "";
+                document.querySelector("#search").focus();
+            };
+
+            function _numb() {
+                RUNTIME.numbering = true;
+                document.querySelector(".numb").style.display = "block";
+                document.querySelector("#numb").value = "";
+                document.querySelector("#numb").focus();
+            };
+
+            function _notice() {
+                RUNTIME.noticing = true;
+                document.querySelector(".notice").style.display = "block";
+                let _s = JSON.parse(localStorage.getItem("notices"));
+                document.querySelector("#notice").value = _s[RUNTIME.folder + RUNTIME.file] || "";
+                delete _s;
+                document.querySelector("#notice").focus();
+            };
+
+            document.querySelector("#numb").addEventListener("keyup", ev => {
+                if (ev.key == "Enter") {
+                    let _v = ev.target.value;
+                    let _scr = parseInt(_v.split("@")[1]) || 0;
+                    let _result_count = -1;
+                    let _r_f = -1;
+                    RUNTIME.editor.eachLine((a) => {
+                        _r_f++;
+                        if (a.text.includes(_v.split("@")[0])) {
+                            _result_count++;
+                            if (_result_count == _scr) {
+                                console.log(_scr);
+                                document.querySelector("#numb").value = "";
+                                document.querySelector(".numb").style.display = "none";
+                                RUNTIME.editor.focus();
+                                RUNTIME.editor.scrollTo(null, RUN.editor.charCoords({ line: _r_f, ch: 0 }).top);
+                                RUNTIME.editor.setSelection({ line: _r_f, ch: a.text.indexOf(_v.split("@")[0]) });
+                            };
+                        };
+                    });
+                };
+            });
+
+            document.querySelector("#search").addEventListener("keyup", ev => {
+                let _s_val = ev.target.value;
+                let _s_res = _recursive(_s_val, RUNTIME.folder.split("").filter((a, b) => { return b != RUNTIME.folder.split("").length - 1 }).join("")).sort(function (a, b) {
+                    if (a.name.toLowerCase() < b.name.toLowerCase()) { return -1; }
+                    if (a.name.toLowerCase() > b.name.toLowerCase()) { return 1; }
+                    return 0;
+                });
+                document.querySelector(".results").innerText = "";
+                document.querySelector(".results").offset = 0;
+                let _s_id = -1;
+                _s_res.forEach(_r => {
+                    _s_id++;
+                    let _r_e = document.createElement("div");
+                    _r_e.classList.add("result");
+                    _r_e.innerHTML = "<div class=\"result-key\"></div><div class=\"result-name\"></div><div class=\"result-notice\"></div>";
+                    if (parseInt(_s_id) < 10) {
+                        _r_e.firstChild.innerText = "CTRL + " + (parseInt(_s_id));
+                    } else {
+                        _r_e.firstChild.style.background = "transparent";
+                    };
+                    if (_s_id == 0) {
+                        _r_e.firstChild.innerText = "ENTER";
+                    };
+                    _r_e.children[1].innerText = _r.name;
+                    let _s_i = false;
+                    let _s = JSON.parse(localStorage.getItem("notices"));
+                    if (_s[_r.path]) {
+                        _s_i = true;
+                        _r_e.lastChild.innerText = _s[_r.path].replace(/\n/ig, " » ");
+                    };
+                    delete _s;
+                    _r_e.path = _r.path;
+                    _r_e.typ = _r.type;
+                    _r_e.addEventListener("click", () => {
+                        _r_e.select();
+                    });
+                    _r_e.select = function () {
+                        RUNTIME.searching = false;
+                        document.querySelector(".search").style.display = "none";
+                        RUNTIME.current = 0;
+                        document.querySelector(".terminal").style.display = "none";
+                        document.querySelector(".editor").style.display = "flex";
+                        RUNTIME.file = _r_e.path.split(RUNTIME.folder)[1];
+                        let content = fs.readFileSync(RUNTIME.folder + RUNTIME.file);
+                        RUNTIME.editor.setOption("mode", _r_e.typ);
+                        RUNTIME.editor.setValue(content.toString());
+                        console.log(_r_e.typ);
+                        RUNTIME.editor.focus();
+                        document.querySelector(".top-title").innerText = RUNTIME.file;
+                    };
+                    if (_s_i && _s_id > 9) {
+                        document.querySelector(".results").offset++;
+                        document.querySelector(".results").insertBefore(_r_e, document.querySelector(".results").firstChild);
+                    } else {
+                        document.querySelector(".results").appendChild(_r_e);
+                    }
+                });
+            });
+
             function _ch(ev, a) {
-                if (ev.key == "Enter" && ev.ctrlKey === true && RUNTIME.mode == "JS") {
+                if (RUNTIME.searching === true) {
+                    if (ev.key == "Enter") {
+                        document.querySelector(".results").children[document.querySelector(".results").offset].select();
+                        ev.preventDefault();
+                        return false;
+                    };
+                    if (parseInt(ev.key) != NaN && ev.ctrlKey === true) {
+                        if (document.querySelector(".results").children[parseInt(ev.key) + document.querySelector(".results").offset]) {
+                            document.querySelector(".results").children[parseInt(ev.key) + document.querySelector(".results").offset].select();
+                        };
+                        ev.preventDefault();
+                        return false;
+                    };
+                } else if (ev.key == "i" && ev.ctrlKey === true) {
+                    _numb();
+                } else if (ev.key == "_" && ev.ctrlKey === true) {
+                    RUNTIME.opacity -= 0.1;
+                    document.body.style.opacity = RUNTIME.opacity;
+                } else if (ev.key == "*" && ev.ctrlKey === true) {
+                    RUNTIME.opacity += 0.1;
+                    document.body.style.opacity = RUNTIME.opacity;
+                } else if (ev.key == "Tab" && ev.ctrlKey === true) {
+                    if (RUNTIME.searching) {
+                        RUNTIME.searching = false;
+                        document.querySelector(".search").style.display = "none";
+                    } else {
+                        _search();
+                    };
+                } else if (ev.key == "f" && ev.ctrlKey === true) {
+                    if (RUNTIME.noticing) {
+                        RUNTIME.noticing = false;
+                        document.querySelector(".notice").style.display = "none";
+                        let _s = JSON.parse(localStorage.getItem("notices"));
+                        _s[RUNTIME.folder + RUNTIME.file] = document.querySelector("#notice").value;
+                        if (document.querySelector("#notice").value.length < 5) {
+                            delete _s[RUNTIME.folder + RUNTIME.file];
+                        };
+                        localStorage.setItem("notices", JSON.stringify(_s));
+                        delete _s;
+                    } else {
+                        _notice();
+                    };
+                } else if (ev.key == "Enter" && ev.ctrlKey === true && RUNTIME.mode == "JS") {
                     RUNTIME.current = 1;
                     document.querySelector(".terminal").style.display = "inline";
                     document.querySelector(".editor").style.display = "none";
@@ -279,7 +607,7 @@
                         if (pcgj.main || (pcgj.scripts && pcgj.scripts.start)) {
                             RUNTIME.console.write("\u001Bc");
                             RUNTIME.console.write("\r\n" + RUNTIME.folder);
-                            return exec("gnome-terminal --working-directory=" + RUNTIME.folder + " -e 'sh -c \"" + (pcgj.main ? ("node " + pcgj.main) : pcgj.scripts.start) + ";echo \"\"Process End\"\"; exec bash\"'", (err, stdout, stderr) => {
+                            return exec("gnome-terminal --title=\"Yves' Editor Gnome Shell\" --working-directory=" + RUNTIME.folder + " -e 'sh -c \"" + (pcgj.main ? ("node " + pcgj.main) : pcgj.scripts.start) + ";echo \"\"Process End\"\"; exec bash\"'", (err, stdout, stderr) => {
                                 if (err) {
                                     RUNTIME.console.write("/> " + err);
                                     console.error(err)
@@ -345,6 +673,14 @@
                         localStorage.setItem("folder", a.filePaths[0]);
                         RUNTIME.console.write("\r\nChanged working directory to: " + a.filePaths[0]);
                         document.title = "Yves' Editor - " + a.filePaths[0];
+                        RUNTIME.notices = {};
+                        let _s = JSON.parse(localStorage.getItem("notices"));
+                        for (let _i in _s) {
+                            if (_i.startsWith(RUNTIME.folder)) {
+                                RUNTIME.notices[_i] = _s[_i];
+                            };
+                        };
+                        delete _s;
                     };
                     j();
                 });
@@ -357,7 +693,7 @@
                     if (c == "open") {
                         _uo(good);
                     } else if (c == "term") {
-                        exec("gnome-terminal --working-directory=" + RUNTIME.folder, (err, stdout, stderr) => {
+                        exec("gnome-terminal --title=\"Yves' Editor Gnome Shell\" --working-directory=" + RUNTIME.folder, (err, stdout, stderr) => {
                             good();
                         });
                     } else if (c == "!reload") {
@@ -370,12 +706,14 @@
                         if (fs.existsSync(RUNTIME.bash_folder + c.split(" ")[1])) {
                             RUNTIME.console.write("\r\nOpening file: " + RUNTIME.bash_folder + c.split(" ")[1]);
                             let content = fs.readFileSync(RUNTIME.bash_folder + c.split(" ")[1]);
+                            RUNTIME.editor.setOption("mode", _type(RUNTIME.file));
                             RUNTIME.editor.setValue(content.toString());
                             RUNTIME.editor.focus();
                             document.querySelector(".top-title").innerText = RUNTIME.file;
                         } else {
                             RUNTIME.console.write("\r\nFile not found: " + RUNTIME.bash_folder + c.split(" ")[1]);
                             RUNTIME.console.write("\r\nLoading blank file..");
+                            RUNTIME.editor.setOption("mode", "NULL");
                             RUNTIME.editor.setValue("");
                             RUNTIME.editor.focus();
                             document.querySelector(".top-title").innerHTML = "<i>Buffer only: </i>";
@@ -513,10 +851,23 @@
             });
 
             RUNTIME.console.prompt = function () {
+                console.log(RUNTIME.console.buffer.cursorY);
                 if (RUNTIME.bash_folder.startsWith(RUNTIME.folder)) {
-                    RUNTIME.console.write("\r\n" + chalk.yellow(os.userInfo().username + "@" + os.hostname()) + ":" + chalk.blue(RUNTIME.bash_folder.split(RUNTIME.folder)[1]) + "$ ");
+                    RUNTIME.console.write(
+                        "\r\n" +
+                        chalk.yellow(os.userInfo().username + "@" +
+                            os.hostname()) +
+                        ":" +
+                        chalk.blue(RUNTIME.bash_folder.split(RUNTIME.folder)[1]) + "$ "
+                    );
                 } else {
-                    RUNTIME.console.write("\r\n" + chalk.yellow(os.userInfo().username + "@" + os.hostname()) + ":" + chalk.magenta(RUNTIME.bash_folder) + "$ ");
+                    RUNTIME.console.write(
+                        "\r\n" +
+                        chalk.yellow(os.userInfo().username + "@" +
+                            os.hostname()) +
+                        ":" +
+                        chalk.magenta(RUNTIME.bash_folder) + "$ "
+                    );
                 };
             };
 
@@ -524,6 +875,13 @@
                 RUNTIME.folder = localStorage.getItem("folder") + "/";
                 RUNTIME.bash_folder = RUNTIME.folder;
                 RUNTIME.console.write("\r\n" + chalk.italic("AUTO Changed working directory to: " + localStorage.getItem("folder")));
+                let _s = JSON.parse(localStorage.getItem("notices"));
+                for (let _i in _s) {
+                    if (_i.startsWith(RUNTIME.folder)) {
+                        RUNTIME.notices[_i] = true;
+                    };
+                };
+                delete _s;
                 document.title = "Yves' Editor - " + localStorage.getItem("folder");
             };
 

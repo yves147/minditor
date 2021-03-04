@@ -166,8 +166,8 @@
             max-height: 200px;
         }
 
-        .cm-s-darcula.CodeMirror,
-        .cm-s-duotone-light.CodeMirror {
+        .cm-s-tomorrow-night-eighties.CodeMirror,
+        .cm-s-idea.CodeMirror {
             width: 100%;
             height: 100%;
             font-size: 17px;
@@ -299,8 +299,8 @@
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.59.4/codemirror.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.59.4/theme/darcula.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.59.4/theme/duotone-light.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.59.4/theme/tomorrow-night-eighties.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.59.4/theme/idea.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.css">
 </head>
 
@@ -348,7 +348,7 @@
     <script>
         (function (RUNTIME) {
             let { exec } = api.require("child_process");
-            let fs = api.require("fs");
+            let fs = api.fs;
             let chalk = api.require("chalk");
             let os = api.require("os");
 
@@ -418,7 +418,8 @@
                     "css": "css",
                     "c": "clike",
                     "cpp": "clike",
-                    "cs": "clike"
+                    "cs": "clike",
+                    "java": "text/x-java"
                 };
 
                 let file_ending = a.split(".").filter((a, b) => {
@@ -433,9 +434,11 @@
                 if (depth > 6) return [];
                 let _content = fs.readdirSync(path);
                 let _res = [];
+                console.log(_content);
                 for (let i = 0; i < _content.length; i++) {
                     if (RUNTIME.ignore_list.includes(_content[i]) || _content[i].startsWith(".")) continue;
-                    if (fs.lstatSync(path + "/" + _content[i]).isDirectory()) {
+                    console.log(_content[i], path + "/" + _content[i], fs.lstatSync(path + "/" + _content[i]));
+                    if (api.directory(path + "/" + _content[i])) {
                         let _g = _recursive(search, path + "/" + _content[i], depth + 1);
                         _res = _res.concat(_g);
                         continue;
@@ -538,7 +541,7 @@
                         document.querySelector(".terminal").style.display = "none";
                         document.querySelector(".editor").style.display = "flex";
                         RUNTIME.file = _r_e.path.split(RUNTIME.folder)[1];
-                        let content = fs.readFileSync(RUNTIME.folder + RUNTIME.file);
+                        let content = api.read(RUNTIME.folder + RUNTIME.file);
                         RUNTIME.editor.setOption("mode", _r_e.typ);
                         RUNTIME.editor.setValue(content.toString());
                         console.log(_r_e.typ);
@@ -661,13 +664,10 @@
             };
 
             function _uo(j) {
-                RUNTIME.dialog.showOpenDialog(RUNTIME.win, {
-                    title: "Yves' Editor File Chooser",
-                    buttonLabel: "Open",
-                    properties: ["openDirectory"]
-                }).then(function (a) {
+                console.log("UO");
+                api.open(function (a) {
                     if (!a.canceled) {
-                        console.log(a.filePaths[0]);
+                        console.log(a, a.filePaths[0]);
                         RUNTIME.folder = a.filePaths[0] + "/";
                         RUNTIME.bash_folder = RUNTIME.folder;
                         localStorage.setItem("folder", a.filePaths[0]);
@@ -745,7 +745,7 @@
                         RUNTIME.win.setAlwaysOnTop(!RUNTIME.win.isAlwaysOnTop());
                         good();
                     } else if (c == "dark") {
-                        RUN.editor.setOption("theme", "darcula");
+                        RUN.editor.setOption("theme", "tomorrow-night-eighties");
                         document.body.classList.remove("light");
                         RUNTIME.console.setOption("theme", {
                             background: "#353535",
@@ -756,7 +756,7 @@
                         terminal.refresh(0, terminal.rows);
                         good();
                     } else if (c == "light") {
-                        RUN.editor.setOption("theme", "duotone-light");
+                        RUN.editor.setOption("theme", "idea");
                         document.body.classList.add("light");
                         RUNTIME.console.setOption("theme", {
                             background: "#faf8f5",
@@ -802,7 +802,7 @@
                 lineNumbers: true,
                 styleActiveLine: true,
                 matchBrackets: true,
-                theme: "darcula",
+                theme: "tomorrow-night-eighties",
                 mode: "javascript"
             });
 
@@ -874,7 +874,7 @@
             if (localStorage.getItem("folder")) {
                 RUNTIME.folder = localStorage.getItem("folder") + "/";
                 RUNTIME.bash_folder = RUNTIME.folder;
-                RUNTIME.console.write("\r\n" + chalk.italic("AUTO Changed working directory to: " + localStorage.getItem("folder")));
+                RUNTIME.console.write("\r\n" + "AUTO Changed working directory to: " + localStorage.getItem("folder"));
                 let _s = JSON.parse(localStorage.getItem("notices"));
                 for (let _i in _s) {
                     if (_i.startsWith(RUNTIME.folder)) {

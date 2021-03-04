@@ -1,14 +1,21 @@
 const {
     contextBridge,
-    ipcRenderer
+    ipcRenderer,
+    remote
 } = require("electron");
 
-// Expose protected methods that allow the renderer process to use
-// the ipcRenderer without exposing the entire object
+const fs = require("fs");
+
 contextBridge.exposeInMainWorld(
     "api", {
+    fs: require("fs"),
+    read: (path) => {
+        return fs.readFileSync(path).toString("utf-8")
+    },
+    directory: (path) => {
+        return fs.existsSync(path) && fs.lstatSync(path).isDirectory()
+    },
     send: (channel, data) => {
-        // whitelist channels
         let validChannels = ["toMain"];
         if (validChannels.includes(channel)) {
             ipcRenderer.send(channel, data);
@@ -17,9 +24,15 @@ contextBridge.exposeInMainWorld(
     receive: (channel, func) => {
         let validChannels = ["fromMain"];
         if (validChannels.includes(channel)) {
-            // Deliberately strip event as it includes `sender` 
             ipcRenderer.on(channel, (event, ...args) => func(...args));
         }
+    },
+    open: function (a) {
+        remote.dialog.showOpenDialog(remote.getCurrentWindow(), {
+            title: "Yves' Editor File Chooser",
+            buttonLabel: "Open",
+            properties: ["openDirectory"]
+        }).then(a)
     },
     require,
     __dirname

@@ -347,10 +347,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.59.4/keymap/sublime.min.js"></script>
     <script>
         (function (RUNTIME) {
-            let { exec } = require("child_process");
-            let fs = require("fs");
-            let chalk = require("chalk");
-            let os = require("os");
+            let { exec } = api.require("child_process");
+            let fs = api.require("fs");
+            let chalk = api.require("chalk");
+            let os = api.require("os");
 
             if (!localStorage.getItem("notices")) {
                 localStorage.setItem("notices", "{}");
@@ -368,7 +368,7 @@
 
             window.RUN = RUNTIME;
 
-            RUNTIME.remote = require("electron").remote;
+            RUNTIME.remote = api.require("electron").remote;
             RUNTIME.dialog = RUNTIME.remote.dialog;
 
             RUNTIME.folder = os.homedir();
@@ -393,7 +393,7 @@
                 document.querySelector(".terminal").style.display = "none";
             }, 300);
 
-            console.log(__dirname);
+            console.log(api.__dirname);
 
             RUNTIME.current = 0;
             RUNTIME.command = "";
@@ -855,18 +855,18 @@
                 if (RUNTIME.bash_folder.startsWith(RUNTIME.folder)) {
                     RUNTIME.console.write(
                         "\r\n" +
-                        chalk.yellow(os.userInfo().username + "@" +
-                            os.hostname()) +
+                        os.userInfo().username + "@" +
+                            os.hostname() +
                         ":" +
-                        chalk.blue(RUNTIME.bash_folder.split(RUNTIME.folder)[1]) + "$ "
+                        RUNTIME.bash_folder.split(RUNTIME.folder)[1] + "$ "
                     );
                 } else {
                     RUNTIME.console.write(
                         "\r\n" +
-                        chalk.yellow(os.userInfo().username + "@" +
-                            os.hostname()) +
+                        os.userInfo().username + "@" +
+                            os.hostname() +
                         ":" +
-                        chalk.magenta(RUNTIME.bash_folder) + "$ "
+                        RUNTIME.bash_folder + "$ "
                     );
                 };
             };

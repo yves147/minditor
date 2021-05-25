@@ -13,6 +13,6 @@
   "dependencies": {
     "auto-launch": "^5.0.5",
     "chalk": "^4.1.0",
-    "electron": "^12.0.0"
+    "electron": "^13.0.0"
   }
 }
